@@ -7,8 +7,7 @@ fn main() {
     send_header();
 
     if !cfg!(target_os = "windows") {
-        println!("You are not using Windows. Visit for Guide: https://github.com/Jakkoble/ModHandler#specify-different-minecraft-directory");
-        quit_program(Message::Success())
+        println!("You are not using Windows. Visit for Guide: https://github.com/Jakkoble/ModHandler#specify-different-minecraft-directory\n");
     }
 
     let profiles = fetch_profiles();
