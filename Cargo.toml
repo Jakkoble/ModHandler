@@ -1,6 +1,6 @@
 [package]
 name = "mod_handler"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["Jakkoble <business@jakkoble.de>"]
 description = "A simple handler for Minecraft Mods"
