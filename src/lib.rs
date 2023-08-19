@@ -1,4 +1,4 @@
-use std::{env, fs, io::stdin, process};
+use std::{env, fs, process};
 
 use crate::directory::{clear_directory, copy_directory, create_mods_dir};
 use crossterm::{
@@ -44,6 +44,9 @@ fn read_char() -> String {
                             KeyCode::Esc => {
                                 return "q".to_string();
                             }
+                            KeyCode::Enter => {
+                                return "ENTER".to_string();
+                            }
                             _ => {}
                         }
                     }
@@ -58,11 +61,11 @@ pub fn quit_program(message: Message) -> ! {
         Message::Error(msg) => {
             println!("Error: {}", msg);
             println!("Press any key to exit...");
-            stdin().read_line(&mut String::new()).unwrap();
+            read_char();
         }
         Message::Success() => {
             println!("\nDone! Press any key to exit...");
-            stdin().read_line(&mut String::new()).unwrap();
+            read_char();
         }
         _ => {}
     }
