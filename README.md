@@ -1,7 +1,9 @@
 # ModHandler
 
 Isn't it annoying to switch the Minecraft Mods directory content between different game versions/modpack sessions? With this simple tool you will experience a **new, faster Way** to switch the Content of your Minecraft mods folder.
-</br>
+</br> </br>
+
+![terminal](https://i.imgur.com/0mUuBeq.png)
 
 ## Setup
 
