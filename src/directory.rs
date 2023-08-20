@@ -83,7 +83,7 @@ pub struct ModDir {
 
 pub fn mods_dir_path() -> PathBuf {
     if let Ok(content) = fs::read_to_string("path.txt") {
-        return Path::new(&content).join("mods");
+        return Path::new(&content.trim()).join("mods");
     }
     let appdata_path = match env::var_os("APPDATA") {
         Some(os_path) => match os_path.to_str() {
