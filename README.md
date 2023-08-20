@@ -28,7 +28,7 @@ in the same directory as the `mod_handler` binary and put the full path to the `
 Example Content of path.txt:</br>
 
 ```
-/root/.minecraft
+/home/jakob/.minecraft
 ```
 
 </br> </br>
