@@ -2,6 +2,7 @@ use std::{
     env,
     ffi::OsStr,
     fs,
+    io::stdin,
     path::{Path, PathBuf},
     process,
 };
@@ -32,6 +33,11 @@ pub fn divider() {
 }
 
 fn read_char() -> String {
+    if cfg!(target_os = "windows") {
+        let mut input = String::new();
+        stdin().read_line(&mut input).unwrap();
+        return input;
+    }
     loop {
         if event::poll(std::time::Duration::from_millis(100)).unwrap() {
             if let event::Event::Key(KeyEvent {
