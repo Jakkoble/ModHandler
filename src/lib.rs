@@ -33,7 +33,7 @@ pub fn divider() {
 }
 
 fn read_char() -> String {
-    if cfg!(target_os = "windows") {
+    if !cfg!(target_os = "windows") {
         let mut input = String::new();
         stdin().read_line(&mut input).unwrap();
         return input;
