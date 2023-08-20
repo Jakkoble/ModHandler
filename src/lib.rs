@@ -1,4 +1,10 @@
-use std::{env, fs, process};
+use std::{
+    env,
+    ffi::OsStr,
+    fs,
+    path::{Path, PathBuf},
+    process,
+};
 
 use crate::directory::{clear_directory, copy_directory, create_mods_dir};
 use crossterm::{
@@ -11,8 +17,8 @@ mod directory;
 
 pub struct Profile {
     pub name: String,
-    pub path: String,
-    pub mods: Vec<String>,
+    pub path: PathBuf,
+    pub mods: usize,
 }
 
 pub enum Message<'a> {
@@ -122,11 +128,7 @@ pub fn fetch_profiles() -> Vec<Profile> {
                 .unwrap_or("Unknown Profile name")
                 .to_string();
 
-            let profile_path = profile_dir
-                .path()
-                .to_str()
-                .unwrap_or("Unknown Profile path")
-                .to_string();
+            let profile_path = profile_dir.path();
 
             let mods = match fs::read_dir(&profile_path) {
                 Ok(dir) => dir
@@ -138,27 +140,23 @@ pub fn fetch_profiles() -> Vec<Profile> {
                             }
                         };
 
-                        match file.file_type() {
+                        let file_type = match file.file_type() {
                             Ok(file_type) => file_type,
                             Err(_) => {
                                 quit_program(Message::Error("Failed reading profile directory."))
                             }
-                        }
-                        .is_file()
+                        };
+
+                        file_type.is_file()
                             && file
-                                .file_name()
-                                .to_str()
-                                .unwrap_or("Unknown")
-                                .to_string()
-                                .ends_with(".jar")
+                                .path()
+                                .extension()
+                                .unwrap_or_else(|| OsStr::new("Unknown"))
+                                == "jar"
                     })
-                    .map(|mod_file| match mod_file {
-                        Ok(file) => file.path().to_str().unwrap_or("Unknown").to_string(),
-                        Err(_) => quit_program(Message::Error("Failed reading profile directory.")),
-                    }),
+                    .count(),
                 Err(_) => quit_program(Message::Error("Failed reading profile directory.")),
-            }
-            .collect();
+            };
 
             Profile {
                 name: profile_name,
@@ -172,8 +170,12 @@ pub fn fetch_profiles() -> Vec<Profile> {
 pub fn list_profiles(profiles: &Vec<Profile>) {
     let file_count = match fs::read_dir(&mods_dir_path()) {
         Ok(mods) => mods.count(),
-        Err(_) => {
-            create_mods_dir();
+        Err(err) => {
+            println!("{}", err);
+            if err.kind() == std::io::ErrorKind::NotFound {
+                create_mods_dir();
+                return;
+            }
             0
         }
     };
@@ -186,12 +188,7 @@ pub fn list_profiles(profiles: &Vec<Profile>) {
     }
 
     for (index, profile) in profiles.iter().enumerate() {
-        println!(
-            "{}) {} ({} Mods)",
-            index + 1,
-            profile.name,
-            profile.mods.len()
-        );
+        println!("{}) {} ({} Mods)", index + 1, profile.name, profile.mods);
     }
 }
 
@@ -229,7 +226,7 @@ pub fn fetch_profile_input(profiles: &Vec<Profile>) -> &Profile {
     return selected_profile;
 }
 
-pub fn copy_mods(source: &str) {
+pub fn copy_mods(source: &Path) {
     let mods_dir = create_mods_dir();
 
     let mut files = mods_dir.content.collect::<Vec<_>>();

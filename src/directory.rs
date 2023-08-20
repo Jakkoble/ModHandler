@@ -1,7 +1,10 @@
 use super::{quit_program, Message};
-use std::{env, fs};
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+};
 
-pub fn clear_directory(path: &str) {
+pub fn clear_directory(path: &Path) {
     if fs::metadata(&path).is_err() {
         println!("Mods directory does not exist.");
         return;
@@ -32,7 +35,7 @@ pub fn clear_directory(path: &str) {
     });
 }
 
-pub fn copy_directory(source: &str, destination: &str) {
+pub fn copy_directory(source: &Path, destination: &Path) {
     if fs::metadata(&source).is_err() {
         quit_program(Message::Error("Mods directory does not exist."));
     }
@@ -60,10 +63,10 @@ pub fn copy_directory(source: &str, destination: &str) {
             None => quit_program(Message::Error("Failed reading mods directory.")),
         };
 
-        let destination_path = format!("{}\\{}", destination, file_name.to_str().unwrap());
+        let destination_path = destination.join(file_name.to_str().unwrap());
 
         if fs::metadata(&path).unwrap().is_dir() {
-            copy_directory(&path.to_str().unwrap(), &destination_path);
+            copy_directory(&path, &destination_path);
             continue;
         } else {
             fs::copy(&path, destination_path).unwrap_or_else(|_| {
@@ -75,12 +78,12 @@ pub fn copy_directory(source: &str, destination: &str) {
 
 pub struct ModDir {
     pub content: fs::ReadDir,
-    pub path: String,
+    pub path: PathBuf,
 }
 
-pub fn mods_dir_path() -> String {
+pub fn mods_dir_path() -> PathBuf {
     if let Ok(content) = fs::read_to_string("path.txt") {
-        return format!("{}\\mods", content);
+        return Path::new(&content).join("mods");
     }
     let appdata_path = match env::var_os("APPDATA") {
         Some(os_path) => match os_path.to_str() {
@@ -91,8 +94,7 @@ pub fn mods_dir_path() -> String {
         },
         None => quit_program(Message::Error("APPDATA environmental variable not found.")),
     };
-
-    format!("{}\\.minecraft\\mods", appdata_path)
+    Path::new(&appdata_path).join(".minecraft").join("mods")
 }
 
 pub fn create_mods_dir() -> ModDir {
