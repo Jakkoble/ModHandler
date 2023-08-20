@@ -170,12 +170,8 @@ pub fn fetch_profiles() -> Vec<Profile> {
 pub fn list_profiles(profiles: &Vec<Profile>) {
     let file_count = match fs::read_dir(&mods_dir_path()) {
         Ok(mods) => mods.count(),
-        Err(err) => {
-            println!("{}", err);
-            if err.kind() == std::io::ErrorKind::NotFound {
-                create_mods_dir();
-                return;
-            }
+        Err(_) => {
+            create_mods_dir();
             0
         }
     };
