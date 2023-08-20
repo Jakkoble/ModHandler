@@ -36,7 +36,7 @@ fn read_char() -> String {
     if !cfg!(target_os = "windows") {
         let mut input = String::new();
         stdin().read_line(&mut input).unwrap();
-        return input;
+        return input.trim().to_string();
     }
     loop {
         if event::poll(std::time::Duration::from_millis(100)).unwrap() {
